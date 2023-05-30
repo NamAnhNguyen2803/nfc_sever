@@ -1,4 +1,5 @@
 const db = require('../ultiz/DbConnect');
+const HelpMethod = require('../ultiz/HelpMethod');
 
 class Bcard {
     constructor(id, userID, designID, nickname, address, phone, email, img, cover, organization, jobTitle, type, createdAt, updatedAt){
@@ -36,64 +37,59 @@ class Bcard {
         return data;
     }
 
-    static getAllBcardsInfor(result){
-        db.query("SELECT * FROM `bcards`", (err, bcard) => {
-            if(err) {
-                result(null);
-                return;
-            }
-            result(bcard);
-        });
-
+    static async getAllBcardsInfor(result){
+        const [rows, fields] = await db.execute("SELECT * FROM `bcards`");
+        result(rows);
     }
 
-    static getById(id, result) {
-        db.query("SELECT * FROM `bcards` WHERE ID = ?", id ,
-            (err, bcard) => {
-                if(err || bcard.length == 0) {
-                    result(null);
-                } else {
-                    result(bcard);
-                }
-            }
-        );
+    static async getById(id, result) {
+        const [rows, fields] = await db.execute("SELECT * FROM `bcards` WHERE ID = ?", [id]);
+        result(rows);
     }
 
-    static create(data, result){
-        db.query("INSERT INTO `bcards` SET ?", data,
-            (err, bcard) => {
-                if(err) {
-                    result(null);
-                } else {
-                    result({id : bcard.insertId, ...data});
-                }
-            }
-        );
+    static async create(data, result){
+        var created_at, updated_at;
+        created_at = updated_at = HelpMethod.getMomentDATETIME();
+
+        const [rows, fields] = await db.execute(
+            "INSERT INTO `bcards` SET user_ID=?,"
+            +"design_ID=?, nickname =?, address=?"
+            +"phone=?, email=?, image=?, cover=?"
+            +"organization=?, job_title=?, type=?"
+            +"created_at = ?, updated_at=?", 
+             [data.userID,data.designID, data.nickname,
+            data.address, data.phone, data.email,
+            data.image, data.cover, data.organization,
+            ]);
+        result(rows);
     }
 
-    static remove(id, result){
-        db.query("DELETE FROM `bcards` WHERE id = ?", id,
-            (err, bcard) => {
-                if(err) {
-                    result(null);
-                } else {
-                    result("delete id = " + id + " success");
-                }
-            }
-        );
+    static async remove(id, result){
+        const [rows, fields] = await db.execute(
+            "DELETE FROM `bcards` WHERE id = ?", [id]);
+        result(rows);
+        
     }
 
-    static update(bcard, result){
-        db.query("UPDATE INTO `bcards` SET user_ID=?, design_ID=?, nickname=?, address=?, phone=?, email=?, image=?, cover=?, organization=?, job_title=?, type=? ,created_at=?, updated_at=? WHERE ID=?",
-         [bcard.userID,  bcard.designID, bcard.nickname, bcard.address, bcard.phone, bcard.email, bcard.image, bcard.cover, bcard.organization, bcard.jobTitle, bcard.type, bcard.createdAt, bcard.updatedAt, bcard.id],
-            (err, bcard) => {
-                if(err) {
-                    result(null);
-                } else {
-                    result(bcard);
-                }
-            }
-        );
+    static async update(bcard, result){
+
+        var updatedAt = HelpMethod.getMomentDATETIME();
+
+        const [rows, fields] = await db.execute(
+            "UPDATE INTO `bcards` SET user_ID=?,"
+            +"design_ID=?, nickname=?, address=?,"
+            +"phone=?, email=?, image=?, cover=?,"
+            +"organization=?, job_title=?, type=?,"
+            + "updated_at=? WHERE ID=?",
+         [bcard.userID,  bcard.designID, 
+            bcard.nickname, bcard.address,
+            bcard.phone, bcard.email, 
+            bcard.image, bcard.cover, 
+            bcard.organization, 
+            bcard.jobTitle, 
+            bcard.type, updatedAt, 
+            bcard.id]);
+        result(rows);
     }
 }
 

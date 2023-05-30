@@ -1,4 +1,5 @@
 var User = require('../models/user.model');
+var dbCon = require('../ultiz/DbConnect')
 
 
 //GET method
@@ -6,25 +7,33 @@ var User = require('../models/user.model');
 let getAllInforOfUserId = async(req,res)=>{ 
     var id = req.params.id;
     
-    let personalInfor = [];
+    let personalInfor = {};
 
-    //getting personalInfor
-    User.getById(id, (data)=>{
-        personalInfor = Object.values(JSON.parse(JSON.stringify(data)));
-        console.log({personal_in4: personalInfor});
-    });
+    const [rows, fields] = await dbCon.execute(
+        "SELECT * FROM `users` WHERE `id` = ?",
+        [id]);
 
     // data is undefinding
     const userData = {
-        personalInfor,
+        personalInfor : rows,
     }
 
-    console.log((userData.personalInfor));
-    
-    console.log(userData);
-
-    res.status(200).json(Object.values(JSON.parse(JSON.stringify(personalInfor))));
+    res.status(200).json({userData});
 };
+
+
+let getAllFromBb = async() =>{
+    const [users, users_fields] = await dbCon.execute(
+        "SELECT * FROM `users`");
+    const [bcards, bcards_fields] = await dbCon.execute(
+        "SELECT * FROM `bcards`");
+    const [designs, design_fields] = await dbCon.execute(
+        "SELECT * FROM `bcards`");
+    const [links, links_fields] = await dbCon.execute(
+        "SELECT * FROM `links`");
+    const [acounts, acounts_fields] = await dbCon.execute(
+        "SELECT * FROM `acounts`");
+}
 
 
 module.exports = {

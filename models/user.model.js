@@ -32,30 +32,17 @@ class User {
         return data;
     }
 
-    static getAllUsersInfor(result){
-        db.query("SELECT * FROM `users`", (err, user) => {
-            if(err) {
-                result(null);
-                return;
-            }
-            result(user);
-        });
-
+    static async getAllUsersInfor(result){
+        const [user, fields] = await db.execute("SELECT * FROM `users`");
+        result(user);
     }
 
-    static getById(id, result) {
-        return db.query("SELECT * FROM `users` WHERE ID = ?", id ,
-            (err, user) => {
-                if(err || user.length == 0) {
-                    result(null);
-                } else {
-                    result(user);
-                }
-            }
-        );
+    static async getById(id, result) {
+        const [user, fields] = await db.execute("SELECT * FROM `users` WHERE ID = ?", [id]);
+        result(user);
     }
 
-    static create(data, result){
+    static async create(data, result){
 
         if(!data.fullName || !data.personalId || !data.dob 
             || !data.nation || !data.email || !data.address
@@ -67,52 +54,35 @@ class User {
         var createdAt, updatedAt;
         createdAt = updatedAt = HelpMethod.getMomentDATETIME();
 
-        var dataConvert = {
-            "full_name" : data.fullName,
-            "personal_id" : data.personalId,
-            "date_of_birth" : data.dob,
-            "nation" : data.nation,
-            "email" : data.email,
-            "address" : data.address,
-            "phone" : data.phone,
-            "created_at" : createdAt,
-            "updated_at" : updatedAt
-        }
-
-        db.query("INSERT INTO `users` SET ?", dataConvert,
-            (err, user) => {
-                if(err) {
-                    result(null);
-                } else {
-                    result({id : user.insertId, ...dataConvert});
-                }
-            }
-        );
+        const [rows, fields] = await db.execute(
+            "INSERT INTO `users` SET `full_name`=?, `personal_id`=?,"
+            +"`date_of_birth`=?, `nation`=?, `email`=?, `address`=?,"
+            +"`phone`=?, `created_at`=?, `updated_at`=?",
+         [data.fullName, data.personalId, data.dob, data.nation,
+            data.email, data.address, data.phone, createdAt, updatedAt]);
+            
+        result(rows);
     }
 
-    static remove(id, result){
-        db.query("DELETE FROM `users` WHERE ID = ?", id,
-            (err, user) => {
-                if(err) {
-                    result(null);
-                } else {
-                    result("delete id = " + id + " success");
-                }
-            }
-        );
+    static async remove(id, result){
+        const [rows, fields] = await db.execute(
+            "DELETE FROM `users` WHERE ID = ?", [id]);
+        
+        result(rows);
     }
 
-    static update(user, result){
-        db.query("UPDATE INTO `users` SET full_name=?, personal_id=?, date_of_birth=?, nation=?, email=?, address=?, phone=?, created_at=?, updated_at=? WHERE ID=?",
-         [user.fullName, user.personalId, user.dob, user.nation, user.email, user.address, user.phone, user.createdAt, user.updatedAt, user.id],
-            (err, user) => {
-                if(err) {
-                    result(null);
-                } else {
-                    result(user);
-                }
-            }
-        );
+    static async update(user, result){
+        var updatedAt = HelpMethod.getMomentDATETIME();
+
+        const [rows, fields] = await db.execute(
+            "UPDATE INTO `users` SET full_name=?,"
+         +"personal_id=?, date_of_birth=?, nation=?, email=?,"
+         +"address=?, phone=?, updated_at=? WHERE ID=?",
+         [user.fullName, user.personalId, user.dob, user.nation,
+            user.email, user.address, user.phone,
+            updatedAt, user.id]);
+
+        result(rows);
     }
 }
 

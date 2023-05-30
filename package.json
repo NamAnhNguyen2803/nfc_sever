@@ -1,0 +1,40 @@
+{
+    "name": "nfc_website",
+    "version": "1.0.0",
+    "description": "NFC project",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://gitlab.com/hung9325520/ht-card.git"
+    },
+    "keywords": [
+        "nfc",
+        "card",
+        "vlaser",
+        "user",
+        "introduction"
+    ],
+    "author": "khanh",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://gitlab.com/hung9325520/ht-card/issues"
+    },
+    "homepage": "https://gitlab.com/hung9325520/ht-card#readme",
+    "dependencies": {
+        "body-parser": "^1.20.2",
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "mysql": "^2.18.1",
+        "mysql2": "^3.3.3",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "morgan": "^1.10.0",
+        "nodemon": "^2.0.22"
+    }
+}

@@ -25,7 +25,7 @@ exports.detail = (req, res) =>{
 
 // POST method
 exports.add_acount = (req,res) =>{
-    var data = req.body;
+    var data = req.body; 
     Acount.create(data, (response) =>{
         res.status(200).json({result : response});
     });

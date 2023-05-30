@@ -1,4 +1,5 @@
 const db = require('../ultiz/DbConnect');
+const HelpMethod = require('../ultiz/HelpMethod');
 
 class Link {
     constructor(id, userID, link, link_type, createdAt, updatedAt){
@@ -23,59 +24,52 @@ class Link {
         return data;
     }
 
-    static getAllLinkInfor(result){
-        db.query("SELECT * FROM `links`", (err,data) =>{
-            if (err|| data.length == 0) {
-                result(null);
-            } else {
-                result(data);
-            }
-        });
+    static async getAllLinkInfor(result){
+        const[rows, fields] = await db.execute(
+            "SELECT * FROM `links`");
+
+        result(rows);
     }
 
-    static getById(id, result){
-        db.query("SELECT * FROM `links` WHERE ID=?",id,(err,data)=>{
-            if (err|| data.length == 0){
-                result(null);
-            } else {
-                result(data);
-            }
-        });
+    static async getById(id, result){
+        const[rows, fields] = await db.execute(
+            "SELECT * FROM `links` WHERE ID=?",[id]);
+
+        result(rows);
     }
 
-    static create(data, result){
-        db.query("INSERT INTO `links` SET ?", data, (err, link) =>{
-            if(err){
-                result(null);
-            } else {
-                result({id: link.insertId, ...data})
-            }
-        });
+    static async create(data, result){
+        var createdAt, updatedAt
+        createdAt = updatedAt = HelpMethod.getMomentDATETIME();
+
+        const[rows, fields] = await db.execute(
+            "INSERT INTO `links` SET user_ID=?,"
+            +" link=?, link_type=?,"
+            +" created_at=?, updated_at=?", 
+            [data.userID, data.link, data.link_type,
+            createdAt, updatedAt]);
+        
+        result(rows);
     }
 
-    static remove(id, result){
-        db.query("DELETE FROM `links` WHERE ID = ?", id,
-            (err,data)=>{
-                if (err|| data.length == 0){
-                    result(null);
-                } else {
-                    result("delete id = " + id + " success");
-                }
-            }
+    static async remove(id, result){
+        const[rows, fields] = await db.execute(
+            "DELETE FROM `links` WHERE ID = ?", [id]);
+        result(rows);
+    }
+
+    static async update(link, result){
+        var updatedAt = HelpMethod.getMomentDATETIME();
+
+        const[rows, fields] = await db.execute(
+            "UPDATE INTO `users` SET user_ID=?, link=?,"
+            +" link_type=?, updated_at=?"
+            +" WHERE ID=?", 
+            [link.userID, link.link, link.link_type, 
+                updatedAt, link.id]
         );
-    }
 
-    static update(link, result){
-        db.query("UPDATE INTO `users` SET user_ID=?, link=?, link_type=?, created_at=?, updated_at=? WHERE ID=?", 
-            [link.userID, link.link, link.link_type, link.createdAt, link.updatedAt, link.id],
-            (err,data)=>{
-                if (err){
-                    result(null);
-                } else {
-                    result(data);
-                }
-            }
-        );
+        result(rows);
     }
     
 }

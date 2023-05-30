@@ -14,8 +14,11 @@ const initRouter = ()=>{
     router.get('/detail/:id', (req, res) => {
         UserController.detail(req,res);
     });
+
     router.post('/add', UserController.add_user);
+    
     router.delete('/delete/:id', UserController.remove_user);
+    
     router.put('/update', UserController.update_User);
     
 

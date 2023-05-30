@@ -1,4 +1,5 @@
 const db = require('../ultiz/DbConnect');
+const HelpMethod = require('../ultiz/HelpMethod');
 
 class Acount {
     constructor(id, userID, password, designID, createdAt, updatedAt){
@@ -23,64 +24,52 @@ class Acount {
         return data;
     }
 
-    static getAllAcountsInfor(result){
-        db.query("SELECT * FROM `acounts`", (err, acount, list) => {
-            if(err) {
-                result(null);
-                return;
-            }
-            result(list);
-        });
+    static async getAllAcountsInfor(result){
+        const [rows, fields] = await db.execute(
+            "SELECT * FROM `acounts`");
 
+        result(rows);
     }
 
-    static getById(id, result) {
-        db.query("SELECT * FROM acounts WHERE ID LIKE ?", id ,
-            (err, acount) => {
-                if(err || acount.length == 0) {
-                    result(null);
-                } else {
-                    result(acount);
-                }
-            }
-        );
+    static async getById(id, result) {
+        const [rows, fields] = await db.execute(
+            "SELECT * FROM acounts WHERE ID LIKE ?",
+             [id]);
+
+        result(rows);
     }
 
-    static create(data, result){
-        db.query("INSERT INTO `acounts` SET ?", data,
-            (err, acount) => {
-                if(err) {
-                    result(null);
-                } else {
-                    result({id : acount.insertId, ...data});
-                }
-            }
-        );
+    static async create(data, result){
+        var createdAt, updatedAt;
+        createdAt = updatedAt = HelpMethod.getMomentDATETIME();
+
+        const [rows, fields] = await db.execute(
+            "INSERT INTO `acounts` SET ID=?,"
+            +" user_ID=?, password=?, design_ID=?,"
+            +" created_at=?, updated_at=?", 
+            [data.id, data.userID, data.password,
+            data.designID, createdAt, updatedAt]);
+
+        result(rows);
     }
 
-    static remove(id, result){
-        db.query("DELETE FROM `acounts` WHERE id = ?", id,
-            (err, acount) => {
-                if(err) {
-                    result(null);
-                } else {
-                    result("delete id = " + id + " success");
-                }
-            }
-        );
+    static async remove(id, result){
+        await db.execute("DELETE FROM `acounts` WHERE id = ?", [id]);
+        result("delete id = " + id + " success");
     }
 
-    static update(acount, result){
-        db.query("UPDATE INTO `acounts` SET user_ID=?, password=?, design_ID=?, created_at=?, updated_at=? WHERE ID LIKE ?",
-         [acount.userID, acount.password, acount.designID, acount.createdAt, acount.updatedAt, acount.id],
-            (err, acount) => {
-                if(err) {
-                    result(null);
-                } else {
-                    result(acount);
-                }
-            }
-        );
+    static async update(acount, result){
+        var updatedAt = HelpMethod.getMomentDATETIME();
+
+        const [rows, fields] = await db.execute(
+            "UPDATE INTO `acounts` SET user_ID=?,"
+            +" password=?, design_ID=?,"
+            +" updated_at=? WHERE ID LIKE ?",
+         [acount.userID, acount.password, 
+            acount.designID, updatedAt, 
+            acount.id]);
+        
+        result(rows);
     }
 }
 

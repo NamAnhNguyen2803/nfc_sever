@@ -1,4 +1,5 @@
 const db = require('../ultiz/DbConnect');
+const HelpMethod = require('../ultiz/HelpMethod');
 
 class Design{
     constructor(id, userID, designName, backgroundColor, fontType, fontColor, logoImg, createdAt, updatedAt){
@@ -30,59 +31,58 @@ class Design{
     }
 
 
-    static getAllLinkInfor(result){
-        db.query("SELECT * FROM `design`", (err,data) =>{
-            if (err|| data.length == 0) {
-                result(null);
-            } else {
-                result(data);
-            }
-        });
+    static async getAllLinkInfor(result){
+        const[rows, fields] = await db.execute(
+            "SELECT * FROM `design`");
+
+        result(rows);
     }
 
-    static getById(id, result){
-        db.query("SELECT * FROM `design` WHERE ID=?",id,(err,data)=>{
-            if (err|| data.length == 0){
-                result(null);
-            } else {
-                result(data);
-            }
-        });
+    static async getById(id, result){
+        const[rows, fields] = await db.execute(
+            "SELECT * FROM `design` WHERE ID=?",[id]);
+
+        result(rows);
     }
 
-    static create(data, result){
-        db.query("INSERT INTO `design` SET ?", data, (err, design) =>{
-            if(err){
-                result(null);
-            } else {
-                result({id: design.insertId, ...data})
-            }
-        });
+    static async create(data, result){
+        
+        var createdAt, updatedAt;
+        createdAt = updatedAt = HelpMethod.getMomentDATETIME();
+
+        const[rows, fields] = await db.execute(
+            "INSERT INTO `design` SET user_ID=?,"
+            +"design_name=?, background_color=?,"
+            +"font_type=?, font_color=?, logo_image=?,"
+            +"created_at=?, updated_at=?", 
+            [data.userID, data.designName, data.backgroundColor,
+            data.fontType, data.fontColor, data.logoImg,
+            createdAt, updatedAt],);
+
+        result(rows);
     }
 
-    static remove(id, result){
-        db.query("DELETE FROM `design` WHERE ID = ?", id,
-            (err,data)=>{
-                if (err|| data.length == 0){
-                    result(null);
-                } else {
-                    result("delete id = " + id + " success");
-                }
-            }
-        );
+    static async remove(id, result){
+        const[rows, fields] = await db.execute(
+            "DELETE FROM `design` WHERE ID = ?", [id]);
+
+        result(rows);
     }
 
-    static update(design, result){
-        db.query("UPDATE INTO `design` SET user_ID=?, design_name=?, background_color=?, font_type=?, font_color=?, logo_image=?, created_at=?, updated_at=? WHERE ID=?", 
-            [design.userID, design.designName, design.backgroundColor, design.fontType, design.fontColor, design.logoImg, design.createdAt, design.updatedAt, design.id],
-            (err,data)=>{
-                if (err){
-                    result(null);
-                } else {
-                    result(data);
-                }
-            }
-        );
+    static async update(design, result){
+        var updatedAt = HelpMethod.getMomentDATETIME();
+
+        const[rows, fields] = await db.execute(
+            "UPDATE INTO `design` SET user_ID=?,"
+            +" design_name=?, background_color=?,"
+            +" font_type=?, font_color=?, logo_image=?,"
+            +" updated_at=? WHERE ID=?", 
+            [design.userID, design.designName, 
+                design.backgroundColor, design.fontType, 
+                design.fontColor, design.logoImg, 
+                updatedAt, design.id]);
+        
+        result(rows);
     }
 
 }

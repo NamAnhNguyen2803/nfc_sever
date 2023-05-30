@@ -15,9 +15,7 @@ let initRouter = ()=> {
     router.use('/bcard', bcardRouter.initRouter());
     router.use('/design', designRouter.initRouter());
     router.use('/link', linkRouter.initRouter());
-
     router.get('/:id', ApiController.getAllInforOfUserId);
-
     return router;
 }
 
